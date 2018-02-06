@@ -79,15 +79,24 @@ int read_write_test(Device & eeprom, int page_size, const eeprom_info_t & info){
 }
 
 void erase_eeprom(Device & eeprom, const eeprom_info_t & info){
-    u32 i;
-    u8 erase;
-    for(i=0; i < info.size; i++){
-        erase = 0xff;
-        eeprom.write(i, &erase, 1);
-        erase = 0;
-        eeprom.read(i, &erase, 1);
-        if( erase != 0xff ){
-            printf("Failed to erase EEPROM at %ld 0x%X\n", i, erase);
+    u32 i, j;
+    u8 buffer[info.page_size];
+
+    printf("Erase Page size is %d\n", info.page_size);
+
+    for(i=0; i < info.size; i+=info.page_size){
+        if( (i % 100) == 0 ){
+            printf("Erase at %ld\n", i);
+        }
+        memset(buffer, 0xff, info.page_size);
+        eeprom.write(i, buffer, info.page_size);
+        memset(buffer, 0, info.page_size);
+        eeprom.read(i, buffer, info.page_size);
+        for(j=0; j < info.page_size; j++){
+            if( buffer[j] != 0xff ){
+                printf("Failed to erase EEPROM at %ld == 0x%X\n", i+j, buffer[j]);
+                exit(1);
+            }
         }
     }
 }
