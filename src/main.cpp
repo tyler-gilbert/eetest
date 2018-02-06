@@ -85,7 +85,7 @@ void erase_eeprom(Device & eeprom, const eeprom_info_t & info){
     printf("Erase Page size is %d\n", info.page_size);
 
     for(i=0; i < info.size; i+=info.page_size){
-        if( (i % 100) == 0 ){
+        if( (i % info.page_size*5) == 0 ){
             printf("Erase at %ld\n", i);
         }
         memset(buffer, 0xff, info.page_size);
